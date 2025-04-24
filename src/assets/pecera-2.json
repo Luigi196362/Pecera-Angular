@@ -1,0 +1,42 @@
+[
+    {
+        "fecha": "2025-04-15",
+        "temperatura": 18.0,
+        "nivelAgua": "Medio",
+        "calidadAgua": "Buena",
+        "movimiento": "Suave",
+        "electricidad": false
+    },
+    {
+        "fecha": "2025-04-16",
+        "temperatura": 17.8,
+        "nivelAgua": "Medio",
+        "calidadAgua": "Buena",
+        "movimiento": "Suave",
+        "electricidad": false
+    },
+    {
+        "fecha": "2025-04-17",
+        "temperatura": 18.2,
+        "nivelAgua": "Medio",
+        "calidadAgua": "Buena",
+        "movimiento": "Suave",
+        "electricidad": false
+    },
+    {
+        "fecha": "2025-04-18",
+        "temperatura": 17.9,
+        "nivelAgua": "Medio",
+        "calidadAgua": "Buena",
+        "movimiento": "Suave",
+        "electricidad": false
+    },
+    {
+        "fecha": "2025-04-19",
+        "temperatura": 18.1,
+        "nivelAgua": "Medio",
+        "calidadAgua": "Buena",
+        "movimiento": "Suave",
+        "electricidad": false
+    }
+]

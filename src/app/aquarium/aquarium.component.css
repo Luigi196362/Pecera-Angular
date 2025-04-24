@@ -1,0 +1,17 @@
+header {
+    height: fit-content;
+    background-color: #b6dfff;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    align-content: center;
+}
+
+.cuerpo {
+    background: linear-gradient(#74c3ff, #356eff);
+    height: 100vh;
+
+}
+
+.contenido {
+    padding: 10px;
+}

@@ -1,0 +1,58 @@
+.aquarium-admin {
+    background: linear-gradient(to bottom right, #e0f7fa, #e1f5fe);
+    padding: 40px;
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.admin-title {
+    font-size: 2.5rem;
+    color: #01579b;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.aquarium-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.aquarium-card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    border: none;
+    padding: 20px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.aquarium-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.aquarium-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.aquarium-icon {
+    font-size: 2rem;
+}
+
+.aquarium-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0277bd;
+}
+
+.aquarium-description {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}

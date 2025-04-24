@@ -1,0 +1,42 @@
+[
+    {
+        "fecha": "2025-04-15",
+        "temperatura": 24.5,
+        "nivelAgua": "Alto",
+        "calidadAgua": "Excelente",
+        "movimiento": "Fuerte",
+        "electricidad": true
+    },
+    {
+        "fecha": "2025-04-16",
+        "temperatura": 24.6,
+        "nivelAgua": "Alto",
+        "calidadAgua": "Excelente",
+        "movimiento": "Fuerte",
+        "electricidad": true
+    },
+    {
+        "fecha": "2025-04-17",
+        "temperatura": 24.7,
+        "nivelAgua": "Alto",
+        "calidadAgua": "Excelente",
+        "movimiento": "Fuerte",
+        "electricidad": true
+    },
+    {
+        "fecha": "2025-04-18",
+        "temperatura": 24.8,
+        "nivelAgua": "Alto",
+        "calidadAgua": "Excelente",
+        "movimiento": "Fuerte",
+        "electricidad": true
+    },
+    {
+        "fecha": "2025-04-19",
+        "temperatura": 24.9,
+        "nivelAgua": "Alto",
+        "calidadAgua": "Excelente",
+        "movimiento": "Fuerte",
+        "electricidad": true
+    }
+]

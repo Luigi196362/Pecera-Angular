@@ -1,0 +1,17 @@
+[
+    {
+        "id": "1",
+        "nombre": "Pecera Tropical",
+        "descripcion": "Una pecera ideal para peces de agua cálida con plantas exóticas."
+    },
+    {
+        "id": "2",
+        "nombre": "Pecera de Agua Fría",
+        "descripcion": "Diseñada para peces como los goldfish que prefieren agua fresca."
+    },
+    {
+        "id": "3",
+        "nombre": "Acuario Marino",
+        "descripcion": "Un ecosistema de agua salada para peces y corales marinos."
+    }
+]

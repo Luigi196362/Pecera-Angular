@@ -1,0 +1,23 @@
+<div class="cuerpo">
+    <header>
+        <h1>{{PeceraData.nombre}}</h1>
+        {{PeceraData.descripcion}}
+    </header>
+
+    <div class="contenido">
+
+
+        <button (click)=" enviarMensaje('calidadAgua','activador',1,'true')">Encender bomba de calidad de agua</button>
+        <button (click)="enviarMensaje('calidadAgua','activador',1,'false')">Apagar bomba de calidad de agua</button>
+
+        <!-- <h1>Prueba: {{mensajeRecibido}}</h1> -->
+
+        <p>Temperatura: {{PeceraData.temperatura}}</p>
+        <p>Nivel de agua: {{PeceraData.nivelAgua}}</p>
+        <p>Calidad de agua: {{PeceraData.calidadAgua}}</p>
+        <p>Movimiento: {{PeceraData.movimiento}}</p>
+        <p>Electricidad: {{PeceraData.electricidad}}</p>
+        <br>
+        <p>Estado bomba de agua (calidad de agua): {{PeceraData.estadoBomba}}</p>
+    </div>
+</div>

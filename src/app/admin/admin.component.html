@@ -1,0 +1,12 @@
+<div class="aquarium-admin">
+    <h1 class="admin-title">Panel de Peceras</h1>
+    <div class="aquarium-grid">
+        <button class="aquarium-card" *ngFor="let item of items" (click)="onCardClick(item)">
+            <div class="aquarium-header">
+                <div class="aquarium-icon">🐠</div>
+                <h2 class="aquarium-name">{{ item.nombre }}</h2>
+            </div>
+            <p class="aquarium-description">{{ item.descripcion }}</p>
+        </button>
+    </div>
+</div>
