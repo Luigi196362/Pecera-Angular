@@ -34,7 +34,7 @@ export class AquariumDataService {
 
 
   public subscribeToTopics(peceraID: number) {
-    const topic = `PC/pecera${peceraID}/#`;
+    const topic = `PC/pecera/${peceraID}/#`;
 
     // 1) Si ya existía, desuscribe
     this.client.unsubscribe(topic, () => {
@@ -49,7 +49,7 @@ export class AquariumDataService {
   }
 
   public enviarMensajeSensor(peceraID: number, categoria: string, id: number, mensaje: string) {
-    this.client.publish('PC/pecera' + peceraID + '/' + categoria + '/sensor/' + id, mensaje, { qos: 1 }, (error) => {
+    this.client.publish('PC/pecera/' + peceraID + '/' + categoria + '/sensor/' + id, mensaje, { qos: 1 }, (error) => {
       if (error) {
         console.error('Error al enviar el mensaje:', error);
       } else {
@@ -59,7 +59,7 @@ export class AquariumDataService {
   }
 
   public enviarMensajeActuador(peceraID: number, categoria: string, id: number, mensaje: string) {
-    this.client.publish('PC/pecera' + peceraID + '/' + categoria + '/actuador/' + id, mensaje, { retain: true, qos: 1 }, (error) => {
+    this.client.publish('PC/pecera/' + peceraID + '/' + categoria + '/actuador/' + id, mensaje, { retain: true, qos: 1 }, (error) => {
       if (error) {
         console.error('Error al enviar el mensaje:', error);
       } else {

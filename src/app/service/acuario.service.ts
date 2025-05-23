@@ -7,21 +7,12 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AcuarioService {
-
+  url: string = 'http://127.0.0.1:8000/peceras/';
   constructor(private http: HttpClient) { }
 
-  // Cuando la API esté lista
-  // getPeceras(): Observable<any> {
-  //   return this.http.get('https://tudominio.com/api/peceras');
-  // }
 
-  // getPeceraById(id: string): Observable<any> {
-  //   return this.http.get(`https://tudominio.com/api/peceras/${id}`);
-  // }
-
-  // De momento consumiendo archivos locales
   getPeceras(): Observable<any> {
-    return this.http.get('/assets/peceras.json');
+    return this.http.get("/assets/peceras.json");
   }
 
   getPeceraById(id: string): Observable<any> {

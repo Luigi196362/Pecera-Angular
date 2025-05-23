@@ -7,6 +7,13 @@
                 <h2 class="aquarium-name">{{ item.nombre }}</h2>
             </div>
             <p class="aquarium-description">{{ item.descripcion }}</p>
+            <p class="aquarium-description">
+                {{
+                item.tamanio === 's' ? 'Pequeño' :
+                item.tamanio === 'm' ? 'Mediano' :
+                'Grande'
+                }}
+            </p>
         </button>
     </div>
 </div>

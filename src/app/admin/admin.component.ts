@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AcuarioService } from '../service/acuario.service';  // Asegúrate que la ruta sea correcta
 
+
 @Component({
   selector: 'app-admin',
   standalone: true,
@@ -25,11 +26,18 @@ export class AdminComponent implements OnInit {
         id: pecera.id,
         nombre: pecera.nombre,
         descripcion: pecera.descripcion,
+        tamanio: pecera.tamanio,
       }));
     });
   }
 
   onCardClick(item: any) {
-    this.router.navigate(['/aquarium'], { state: { item } });
+    if (item.tamanio === 's') {
+      this.router.navigate(['/aquarium-s'], { state: { item } });
+    } else if (item.tamanio === 'm') {
+      this.router.navigate(['/aquarium-m'], { state: { item } });
+    } else if (item.tamanio === 'l') {
+      this.router.navigate(['/aquarium-l'], { state: { item } });
+    }
   }
 }
