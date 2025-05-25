@@ -32,12 +32,6 @@ export class AdminComponent implements OnInit {
   }
 
   onCardClick(item: any) {
-    if (item.tamanio === 's') {
-      this.router.navigate(['/aquarium-s'], { state: { item } });
-    } else if (item.tamanio === 'm') {
-      this.router.navigate(['/aquarium-m'], { state: { item } });
-    } else if (item.tamanio === 'l') {
-      this.router.navigate(['/aquarium-l'], { state: { item } });
-    }
+    this.router.navigate(['/aquarium'], { state: { item } });
   }
 }

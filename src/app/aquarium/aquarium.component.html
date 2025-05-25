@@ -1,57 +1,71 @@
 <div class="cuerpo">
     <header>
         <h1>{{PeceraData.nombre}}</h1>
-        <p class="descripcion">{{PeceraData.descripcion}}</p>
+        <p>{{PeceraData.descripcion}}</p>
+        <p><strong>Tamaño:</strong> {{PeceraData.tamanio === 's' ? 'Chica': PeceraData.tamanio === 'm' ? 'Mediana' :
+            'Grande' }}</p>
     </header>
 
     <div class="contenido">
+        <!-- Datos de la pecera -->
         <div class="datos-container">
-            <h2>Datos de la pecera</h2>
+            <h2>Datos de los sensores en tiempo real</h2>
             <div class="datos">
-                <p><strong>Temperatura:</strong> {{PeceraData.temperatura}} °C</p>
-                <p><strong>Nivel de agua:</strong> {{PeceraData.nivelAgua}}</p>
-                <p><strong>Calidad de agua:</strong> {{PeceraData.calidadAgua}}</p>
-                <p><strong>Movimiento:</strong> {{PeceraData.movimiento}}</p>
-                <p><strong>Electricidad:</strong> {{PeceraData.electricidad}}</p>
-                <!-- <p><strong>Estado bomba de agua (calidad de agua):</strong> {{PeceraData.estadoBomba}}</p>
-                <p><strong>Estado resistencia (temperatura):</strong> {{PeceraData.estadoResistencia}}</p> -->
+
+                <div *ngFor="let tipo of ['temperatura', 'flujoAgua', 'calidadAgua', 'nivelAgua', 'nivelOxigeno']">
+                    <div *ngIf="valoresSensores[tipo]?.length">
+                        <h4><strong>{{ tipo | titlecase }}</strong></h4>
+                        <ul>
+                            <li *ngFor="let valor of valoresSensores[tipo]; let i = index">
+                                Sensor {{ i + 1 }}: {{ valor }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+
             </div>
         </div>
 
+        <!-- Control Manual -->
         <div class="botones">
             <h2>Control Manual</h2>
-            <button class="btn encender" (click)="enviarMensajeActuador('calidadAgua',1,PeceraData.estadoBomba)"
-                class="{{ PeceraData.estadoBomba === 'true' ? 'encender' : 'apagar' }}">
-                {{ PeceraData.estadoBomba === 'true' ? 'Bomba' : 'Bomba' }}
+            <button class="btn" [ngClass]="PeceraData.estadoBomba === 'true' ? 'encender' : 'apagar'"
+                (click)="enviarMensajeActuador('calidadAgua', 1, PeceraData.estadoBomba)">
+                Bomba
             </button>
-            <button class="btn encender" (click)="enviarMensajeActuador('Temperatura',1,PeceraData.estadoResistencia)"
-                class="{{ PeceraData.estadoResistencia === 'true' ? 'encender' : 'apagar' }}">
-                {{ PeceraData.estadoResistencia === 'true' ? 'Resistencia' : 'Resistencia' }}
-            </button>
-
-            <button class="btn encender" (click)="enviarMensajeActuador('calidadAgua',1,PeceraData.estadoBomba)"
-                class="{{ PeceraData.estadoBomba === 'true' ? 'encender' : 'apagar' }}">
-                {{ PeceraData.estadoBomba === 'true' ? 'Bomba' : 'Bomba' }}
-            </button>
-            <button class="btn encender" (click)="enviarMensajeActuador('Temperatura',1,PeceraData.estadoResistencia)"
-                class="{{ PeceraData.estadoResistencia === 'true' ? 'encender' : 'apagar' }}">
-                {{ PeceraData.estadoResistencia === 'true' ? 'Resistencia' : 'Resistencia' }}
+            <button class="btn" [ngClass]="PeceraData.estadoResistencia === 'true' ? 'encender' : 'apagar'"
+                (click)="enviarMensajeActuador('Temperatura', 1, PeceraData.estadoResistencia)">
+                Resistencia
             </button>
         </div>
 
+        <!-- Gráficos dinámicos -->
         <div class="graficos">
-            <div class="grafico">
-                <canvas #canvasTemp></canvas>
+            <!-- Temperatura -->
+            <div *ngFor="let _ of [].constructor(sensorConfig.temperatura); let i = index" class="grafico">
+                <canvas #canvasTemperatura></canvas>
             </div>
-            <div class="grafico">
+
+            <!-- Flujo de agua -->
+            <div *ngFor="let _ of [].constructor(sensorConfig.flujoAgua); let i = index" class="grafico">
+                <canvas #canvasFlujoAgua></canvas>
+            </div>
+
+            <!-- Calidad de agua -->
+            <div *ngFor="let _ of [].constructor(sensorConfig.calidadAgua); let i = index" class="grafico">
                 <canvas #canvasCalidadAgua></canvas>
             </div>
-            <div class="grafico">
+
+            <!-- Nivel de agua -->
+            <div *ngFor="let _ of [].constructor(sensorConfig.nivelAgua); let i = index" class="grafico">
                 <canvas #canvasNivelAgua></canvas>
             </div>
 
+            <!-- Nivel de oxígeno -->
+            <div *ngFor="let _ of [].constructor(sensorConfig.nivelOxigeno); let i = index" class="grafico">
+                <canvas #canvasNivelOxigeno></canvas>
+            </div>
         </div>
-
-
     </div>
 </div>

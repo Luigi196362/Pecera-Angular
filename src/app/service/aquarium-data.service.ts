@@ -71,6 +71,17 @@ export class AquariumDataService {
   public obtenerMensajes() {
     return this.mensajes$.asObservable();
   }
+  public desuscribirseDeTodosLosTopics(): void {
+    // Usamos comodín para cancelar todas las suscripciones bajo PC/pecera
+    const topicWildcard = 'PC/pecera/#';
+    this.client.unsubscribe(topicWildcard, (err) => {
+      if (err) {
+        console.error('❌ Error al desuscribirse de todos los tópicos:', err);
+      } else {
+        console.log('🛑 Desuscripción completa de:', topicWildcard);
+      }
+    });
+  }
 
 }
 
