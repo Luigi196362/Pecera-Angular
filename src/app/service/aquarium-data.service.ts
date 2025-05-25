@@ -35,6 +35,7 @@ export class AquariumDataService {
 
   public subscribeToTopics(peceraID: number) {
     const topic = `PC/pecera/${peceraID}/#`;
+    console.log(`📡 Subscribiéndose a topics de la pecera ID ${peceraID}`);
 
     // 1) Si ya existía, desuscribe
     this.client.unsubscribe(topic, () => {
@@ -63,7 +64,7 @@ export class AquariumDataService {
       if (error) {
         console.error('Error al enviar el mensaje:', error);
       } else {
-        console.log('Mensaje enviado correctamente');
+        console.log('Mensaje enviado correctamente: ' + mensaje + ' a ' + categoria + '/actuador/' + id);
       }
     });
   }
@@ -71,9 +72,9 @@ export class AquariumDataService {
   public obtenerMensajes() {
     return this.mensajes$.asObservable();
   }
-  public desuscribirseDeTodosLosTopics(): void {
+  public desuscribirseDeTodosLosTopics(peceraID: number): void {
     // Usamos comodín para cancelar todas las suscripciones bajo PC/pecera
-    const topicWildcard = 'PC/pecera/#';
+    const topicWildcard = 'PC/pecera/' + peceraID + '/#';
     this.client.unsubscribe(topicWildcard, (err) => {
       if (err) {
         console.error('❌ Error al desuscribirse de todos los tópicos:', err);

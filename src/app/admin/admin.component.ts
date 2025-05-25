@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AcuarioService } from '../service/acuario.service';  // Asegúrate que la ruta sea correcta
+import { AquariumDataService } from '../service/aquarium-data.service';
 
 
 @Component({
@@ -17,7 +18,8 @@ export class AdminComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private acuarioService: AcuarioService
+    private acuarioService: AcuarioService,
+    private aquariumDataService: AquariumDataService,
   ) { }
 
   ngOnInit(): void {

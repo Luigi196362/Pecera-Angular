@@ -43,7 +43,6 @@ interface SensorConfig {
   calidadAgua: number;
   nivelAgua: number;
   nivelOxigeno: number;
-
 }
 
 const SENSOR_CONFIGS: SensorConfig[] = [
@@ -65,13 +64,30 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('canvasCalidadAgua') canvasCalidadAgua!: QueryList<ElementRef<HTMLCanvasElement>>;
   @ViewChildren('canvasNivelAgua') canvasNivelAgua!: QueryList<ElementRef<HTMLCanvasElement>>;
   @ViewChildren('canvasNivelOxigeno') canvasNivelOxigeno!: QueryList<ElementRef<HTMLCanvasElement>>;
+
   valoresSensores: { [clave: string]: number[] } = {
     temperatura: [],
     flujoAgua: [],
     calidadAgua: [],
     nivelAgua: [],
-    nivelOxigeno: []
+    nivelOxigeno: [],
+    movimiento: []
   };
+  nombreSensores: { [key: string]: string } = {
+    temperatura: 'Temperatura',
+    flujoAgua: 'Flujo de Agua',
+    calidadAgua: 'Calidad del Agua',
+    nivelAgua: 'Nivel del Agua',
+    nivelOxigeno: 'Nivel de Oxígeno',
+    movimiento: 'Movimiento'
+  };
+  nombreActuadores: { [key: string]: string } = {
+    calidadAgua: 'Purificador de Agua',
+    temperatura: 'Resistencia Calefactora'
+  };
+
+
+  valoresActuadores: { [clave: string]: boolean[] } = {};
 
   chartTemps: Chart[] = [];
   chartFlujos: Chart[] = [];
@@ -79,10 +95,12 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
   chartNiveles: Chart[] = [];
   chartOxigenos: Chart[] = [];
 
-
   PeceraData: Pecera = new Pecera();
   sensorConfig!: SensorConfig;
   private mensajeSub!: Subscription;
+
+  // Categorías de actuadores a generar
+  actuadorTipos = ['calidadAgua', 'temperatura'];
 
   constructor(
     private router: Router,
@@ -97,23 +115,26 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate(['/']);
       return;
     }
+
     const tamanio = this.PeceraData.tamanio;
-    // Selección de configuración según ID de ventana previa
-    const configIndex = tamanio === 's' ? 0 : tamanio === 'm' ? 1 : tamanio === 'l' ? 2 : 0;
-    this.sensorConfig = SENSOR_CONFIGS[configIndex] || SENSOR_CONFIGS[0];
-    Object.keys(this.valoresSensores).forEach((tipo: string) => {
-      const cantidad = (this.sensorConfig as any)[tipo] || 0;
-      this.valoresSensores[tipo] = new Array(cantidad).fill(0);
+    const idx = tamanio === 's' ? 0 : tamanio === 'm' ? 1 : 2;
+    this.sensorConfig = SENSOR_CONFIGS[idx];
+
+    Object.keys(this.valoresSensores).forEach(tipo => {
+      const cnt = (this.sensorConfig as any)[tipo] || 0;
+      this.valoresSensores[tipo] = Array(cnt).fill(0);
     });
 
-    // Suscribirse a MQTT con base en la pecera
-    const peceraId = this.PeceraData.id;
-    if (peceraId != null) {
-      this.aquariumDataService.subscribeToTopics(peceraId);
-      this.mensajeSub = this.aquariumDataService.obtenerMensajes().subscribe(({ topic, mensaje }) => {
-        this.procesarMensaje(topic, mensaje);
-      });
-    }
+    this.actuadorTipos.forEach(tipo => {
+      const cnt = (this.sensorConfig as any)[tipo] || 0;
+      this.valoresActuadores[tipo] = Array(cnt).fill(false);
+    });
+
+    const id = this.PeceraData.id;
+    this.aquariumDataService.subscribeToTopics(id);
+    this.mensajeSub = this.aquariumDataService.obtenerMensajes().subscribe(({ topic, mensaje }) => {
+      this.procesarMensaje(topic, mensaje);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -137,50 +158,54 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.mensajeSub) this.mensajeSub.unsubscribe();
-    this.aquariumDataService.desuscribirseDeTodosLosTopics();
+    console.log('Destroy');
+    const id = this.PeceraData.id;
+    this.aquariumDataService.desuscribirseDeTodosLosTopics(id);
+    this.mensajeSub.unsubscribe();
+
   }
 
-  private procesarMensaje(topic: string, mensaje: string) {
+  private procesarMensaje(topic: string, mensaje: string): void {
     const parts = topic.split('/');
     const categoria = parts[3];
-    const sensorId = parseInt(parts[5], 10) - 1;
-    const valor = parseFloat(mensaje);
+    const tipo = parts[4];
+    const id = parseInt(parts[5], 10) - 1;
+    const valor = tipo === 'actuador' ? (mensaje === 'true') : parseFloat(mensaje);
+    console.log(`📩 Mensaje recibido desde el topic: ${topic}`);
 
-    if (this.valoresSensores[categoria] && this.valoresSensores[categoria][sensorId] !== undefined) {
-      this.valoresSensores[categoria][sensorId] = valor;
-    }
-
-    switch (categoria) {
-      case 'temperatura':
-        if (this.chartTemps[sensorId]) this.actualizarGrafico(this.chartTemps[sensorId], valor);
-        break;
-      case 'flujoAgua':
-        if (this.chartFlujos[sensorId]) this.actualizarGrafico(this.chartFlujos[sensorId], valor);
-        break;
-      case 'calidadAgua':
-        if (this.chartCalidades[sensorId]) this.actualizarGrafico(this.chartCalidades[sensorId], valor);
-        break;
-      case 'nivelAgua':
-        if (this.chartNiveles[sensorId]) this.actualizarGrafico(this.chartNiveles[sensorId], valor);
-        break;
-      case 'nivelOxigeno':
-        if (this.chartOxigenos[sensorId]) this.actualizarGrafico(this.chartOxigenos[sensorId], valor);
-        break;
-      default:
-        break;
+    if (tipo === 'sensor') {
+      if (this.valoresSensores[categoria]?.[id] !== undefined) {
+        this.valoresSensores[categoria][id] = valor as number;
+      }
+      switch (categoria) {
+        case 'temperatura':
+          if (this.chartTemps[id]) this.actualizarGrafico(this.chartTemps[id], valor as number);
+          break;
+        case 'flujoAgua':
+          if (this.chartFlujos[id]) this.actualizarGrafico(this.chartFlujos[id], valor as number);
+          break;
+        case 'calidadAgua':
+          if (this.chartCalidades[id]) this.actualizarGrafico(this.chartCalidades[id], valor as number);
+          break;
+        case 'nivelAgua':
+          if (this.chartNiveles[id]) this.actualizarGrafico(this.chartNiveles[id], valor as number);
+          break;
+        case 'nivelOxigeno':
+          if (this.chartOxigenos[id]) this.actualizarGrafico(this.chartOxigenos[id], valor as number);
+          break;
+      }
+    } else if (tipo === 'actuador') {
+      if (this.valoresActuadores[categoria]?.[id] !== undefined) {
+        this.valoresActuadores[categoria][id] = valor as boolean;
+      }
     }
   }
 
-
-
-  enviarMensajeSensor(categoria: string, id: number, mensaje: string) {
-    this.aquariumDataService.enviarMensajeSensor(window.history.state.item.id, categoria, id, mensaje);
-  }
 
   enviarMensajeActuador(categoria: string, id: number, estado: string) {
     const nuevoEstado = estado === 'true' ? 'false' : 'true';
-    this.aquariumDataService.enviarMensajeActuador(window.history.state.item.id, categoria, id, nuevoEstado);
+    this.valoresActuadores[categoria][id - 1] = nuevoEstado === 'true';
+    this.aquariumDataService.enviarMensajeActuador(this.PeceraData.id, categoria, id, nuevoEstado);
   }
 
   private crearGrafico(canvas: HTMLCanvasElement, label: string, color: string): Chart {
@@ -202,4 +227,5 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     grafico.update('none');
   }
+
 }

@@ -12,9 +12,11 @@
             <h2>Datos de los sensores en tiempo real</h2>
             <div class="datos">
 
-                <div *ngFor="let tipo of ['temperatura', 'flujoAgua', 'calidadAgua', 'nivelAgua', 'nivelOxigeno']">
+                <div
+                    *ngFor="let tipo of ['temperatura', 'flujoAgua', 'calidadAgua', 'nivelAgua', 'nivelOxigeno','movimiento']">
                     <div *ngIf="valoresSensores[tipo]?.length">
-                        <h4><strong>{{ tipo | titlecase }}</strong></h4>
+                        <h4><strong>{{ nombreSensores[tipo] }}</strong></h4>
+
                         <ul>
                             <li *ngFor="let valor of valoresSensores[tipo]; let i = index">
                                 Sensor {{ i + 1 }}: {{ valor }}
@@ -28,17 +30,22 @@
         </div>
 
         <!-- Control Manual -->
-        <div class="botones">
-            <h2>Control Manual</h2>
-            <button class="btn" [ngClass]="PeceraData.estadoBomba === 'true' ? 'encender' : 'apagar'"
-                (click)="enviarMensajeActuador('calidadAgua', 1, PeceraData.estadoBomba)">
-                Bomba
-            </button>
-            <button class="btn" [ngClass]="PeceraData.estadoResistencia === 'true' ? 'encender' : 'apagar'"
-                (click)="enviarMensajeActuador('Temperatura', 1, PeceraData.estadoResistencia)">
-                Resistencia
-            </button>
+        <div class="control-actuadores">
+            <h3>Actuadores dinámicos</h3>
+            <div *ngFor="let cat of actuadorTipos">
+                <h4>{{ nombreActuadores[cat] }}</h4>
+
+                <div class="actuadores">
+                    <button *ngFor="let estado of valoresActuadores[cat]; let i = index" class="btn"
+                        [ngClass]="estado ? 'encender' : 'apagar'"
+                        (click)="enviarMensajeActuador(cat, i+1, estado.toString())">
+                        {{ nombreActuadores[cat] }} {{ i + 1 }}
+
+                    </button>
+                </div>
+            </div>
         </div>
+
 
         <!-- Gráficos dinámicos -->
         <div class="graficos">
