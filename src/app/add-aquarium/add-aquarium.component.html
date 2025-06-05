@@ -1,0 +1,20 @@
+<div class="aquarium-admin">
+    <div class="form-container">
+        <form (ngSubmit)="crearPecera()" #peceraForm="ngForm">
+            <input type="text" name="nombre" [(ngModel)]="nuevaPecera.nombre" placeholder="Nombre de la pecera"
+                required />
+
+            <input type="text" name="descripcion" [(ngModel)]="nuevaPecera.descripcion" placeholder="Descripción"
+                required />
+
+            <select name="tamano" [(ngModel)]="nuevaPecera.tamano" required>
+                <option value="" disabled selected>Seleccionar tamaño</option>
+                <option value="s">Pequeño</option>
+                <option value="m">Mediano</option>
+                <option value="l">Grande</option>
+            </select>
+
+            <button type="submit" class="submit-button">Crear Pecera</button>
+        </form>
+    </div>
+</div>

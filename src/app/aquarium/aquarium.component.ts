@@ -1,3 +1,4 @@
+// aquarium.component.ts
 import {
   ChangeDetectorRef,
   Component,
@@ -5,8 +6,7 @@ import {
   OnDestroy,
   OnInit,
   AfterViewInit,
-  ViewChildren,
-  QueryList
+  ViewChild
 } from '@angular/core';
 
 import {
@@ -18,16 +18,8 @@ import {
   Title,
   CategoryScale,
   Legend,
+  ChartDataset
 } from 'chart.js';
-class Pecera {
-  id: number = 0;
-  nombre: string = '';
-  descripcion: string = '';
-  estadoBomba: string = '';
-  estadoResistencia: string = '';
-  tamanio: string = '';
-  // Add other properties as needed
-}
 
 import { AquariumDataService } from '../service/aquarium-data.service';
 import { Router } from '@angular/router';
@@ -45,11 +37,46 @@ interface SensorConfig {
   nivelOxigeno: number;
 }
 
+interface ActuadorConfig {
+  temperatura: number;
+  flujoAgua: number;
+  movimiento: number;
+  calidadAgua: number;
+  nivelAgua: number;
+  nivelOxigeno: number;
+}
+
 const SENSOR_CONFIGS: SensorConfig[] = [
   { temperatura: 1, flujoAgua: 1, movimiento: 1, calidadAgua: 1, nivelAgua: 1, nivelOxigeno: 1 },
   { temperatura: 4, flujoAgua: 2, movimiento: 2, calidadAgua: 4, nivelAgua: 2, nivelOxigeno: 2 },
   { temperatura: 8, flujoAgua: 4, movimiento: 4, calidadAgua: 8, nivelAgua: 4, nivelOxigeno: 3 }
 ];
+
+const ACTUADOR_CONFIG: ActuadorConfig[] = [
+  { temperatura: 1, flujoAgua: 1, movimiento: 1, calidadAgua: 1, nivelAgua: 1, nivelOxigeno: 1 },
+  { temperatura: 2, flujoAgua: 2, movimiento: 2, calidadAgua: 2, nivelAgua: 2, nivelOxigeno: 2 },
+  { temperatura: 3, flujoAgua: 3, movimiento: 3, calidadAgua: 3, nivelAgua: 3, nivelOxigeno: 3 }
+];
+// Paleta fija para identificar sensores
+const PALETTE: string[] = [
+  'rgba(255, 99, 132, 1)',
+  'rgba(54, 162, 235, 1)',
+  'rgba(255, 206, 86, 1)',
+  'rgba(75, 192, 192, 1)',
+  'rgba(153, 102, 255, 1)',
+  'rgba(255, 159, 64, 1)',
+  'rgba(83, 255, 76, 1)',
+  'rgba(83, 102, 255, 1)'
+];
+
+class Pecera {
+  id: number = 0;
+  nombre: string = '';
+  descripcion: string = '';
+  estadoBomba: string = '';
+  estadoResistencia: string = '';
+  tamano: string = '';
+}
 
 @Component({
   selector: 'app-aquarium-m',
@@ -59,11 +86,11 @@ const SENSOR_CONFIGS: SensorConfig[] = [
 })
 export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChildren('canvasTemperatura') canvasTemperatura!: QueryList<ElementRef<HTMLCanvasElement>>;
-  @ViewChildren('canvasFlujoAgua') canvasFlujoAgua!: QueryList<ElementRef<HTMLCanvasElement>>;
-  @ViewChildren('canvasCalidadAgua') canvasCalidadAgua!: QueryList<ElementRef<HTMLCanvasElement>>;
-  @ViewChildren('canvasNivelAgua') canvasNivelAgua!: QueryList<ElementRef<HTMLCanvasElement>>;
-  @ViewChildren('canvasNivelOxigeno') canvasNivelOxigeno!: QueryList<ElementRef<HTMLCanvasElement>>;
+  @ViewChild('canvasTemperatura', { static: false }) canvasTemperatura!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvasFlujoAgua', { static: false }) canvasFlujoAgua!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvasCalidadAgua', { static: false }) canvasCalidadAgua!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvasNivelAgua', { static: false }) canvasNivelAgua!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvasNivelOxigeno', { static: false }) canvasNivelOxigeno!: ElementRef<HTMLCanvasElement>;
 
   valoresSensores: { [clave: string]: number[] } = {
     temperatura: [],
@@ -73,6 +100,7 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
     nivelOxigeno: [],
     movimiento: []
   };
+
   nombreSensores: { [key: string]: string } = {
     temperatura: 'Temperatura',
     flujoAgua: 'Flujo de Agua',
@@ -81,26 +109,27 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
     nivelOxigeno: 'Nivel de Oxígeno',
     movimiento: 'Movimiento'
   };
+
   nombreActuadores: { [key: string]: string } = {
     calidadAgua: 'Purificador de Agua',
-    temperatura: 'Resistencia Calefactora'
+    temperatura: 'Resistencia Calefactora',
+    flujoAgua: 'Bomba de Agua',
   };
-
 
   valoresActuadores: { [clave: string]: boolean[] } = {};
 
-  chartTemps: Chart[] = [];
-  chartFlujos: Chart[] = [];
-  chartCalidades: Chart[] = [];
-  chartNiveles: Chart[] = [];
-  chartOxigenos: Chart[] = [];
+  chartTemp!: Chart;
+  chartFlujo!: Chart;
+  chartCalidad!: Chart;
+  chartNivel!: Chart;
+  chartOxigeno!: Chart;
 
   PeceraData: Pecera = new Pecera();
   sensorConfig!: SensorConfig;
+  actuadorConfig!: ActuadorConfig;
   private mensajeSub!: Subscription;
 
-  // Categorías de actuadores a generar
-  actuadorTipos = ['calidadAgua', 'temperatura'];
+  actuadorTipos = ['calidadAgua', 'temperatura', 'flujoAgua'];
 
   constructor(
     private router: Router,
@@ -109,24 +138,23 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-
     this.PeceraData = window.history.state.item;
     if (!this.PeceraData) {
       this.router.navigate(['/']);
       return;
     }
 
-    const tamanio = this.PeceraData.tamanio;
-    const idx = tamanio === 's' ? 0 : tamanio === 'm' ? 1 : 2;
+    const tamano = this.PeceraData.tamano;
+    const idx = tamano === 's' ? 0 : tamano === 'm' ? 1 : 2;
     this.sensorConfig = SENSOR_CONFIGS[idx];
-
+    this.actuadorConfig = ACTUADOR_CONFIG[idx];
     Object.keys(this.valoresSensores).forEach(tipo => {
       const cnt = (this.sensorConfig as any)[tipo] || 0;
       this.valoresSensores[tipo] = Array(cnt).fill(0);
     });
 
     this.actuadorTipos.forEach(tipo => {
-      const cnt = (this.sensorConfig as any)[tipo] || 0;
+      const cnt = (this.actuadorConfig as any)[tipo] || 0;
       this.valoresActuadores[tipo] = Array(cnt).fill(false);
     });
 
@@ -138,31 +166,207 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // Crear gráficos dinámicos
-    this.canvasTemperatura.forEach((canv, i) => {
-      this.chartTemps[i] = this.crearGrafico(canv.nativeElement, `Temperatura ${i + 1} (°C)`, 'rgb(255, 166, 0)');
-    });
-    this.canvasFlujoAgua.forEach((canv, i) => {
-      this.chartFlujos[i] = this.crearGrafico(canv.nativeElement, `Flujo Agua ${i + 1} (L/min)`, 'rgb(255, 38, 0)');
-    });
-    this.canvasCalidadAgua.forEach((canv, i) => {
-      this.chartCalidades[i] = this.crearGrafico(canv.nativeElement, `Calidad Agua ${i + 1}`, 'rgb(40, 167, 69)');
-    });
-    this.canvasNivelAgua.forEach((canv, i) => {
-      this.chartNiveles[i] = this.crearGrafico(canv.nativeElement, `Nivel Agua ${i + 1} (%)`, 'rgb(0, 123, 255)');
-    });
-    this.canvasNivelOxigeno.forEach((canv, i) => {
-      this.chartOxigenos[i] = this.crearGrafico(canv.nativeElement, `Nivel Oxígeno ${i + 1}`, 'rgb(174, 0, 255)');
-    });
+    // 1) Temperatura
+    if (this.sensorConfig.temperatura > 0) {
+      const count = this.sensorConfig.temperatura;
+      const datasetsTemp: ChartDataset<'line'>[] = [];
+      for (let i = 0; i < count; i++) {
+        const color = PALETTE[i % PALETTE.length];
+        const bg = color.replace(', 1)', ', 0.2)');
+        datasetsTemp.push({
+          label: `Sensor ${i + 1}`,
+          data: [],
+          borderColor: color,
+          backgroundColor: bg,
+          fill: false,
+          tension: 0.1,
+          pointRadius: 0,
+          spanGaps: true
+        });
+      }
+      this.chartTemp = new Chart(
+        this.canvasTemperatura.nativeElement.getContext('2d')!,
+        {
+          type: 'line',
+          data: { labels: [], datasets: datasetsTemp },
+          options: {
+            animation: { duration: 0 },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: { display: true, text: 'Temperatura (°C)' },
+              legend: { position: 'bottom' }
+            },
+            scales: {
+              x: { ticks: { autoSkip: true, maxTicksLimit: 8 } },
+              y: { beginAtZero: true }
+            }
+          }
+        }
+      );
+    }
+
+    // 2) Flujo de Agua
+    if (this.sensorConfig.flujoAgua > 0) {
+      const count = this.sensorConfig.flujoAgua;
+      const datasetsFlujo: ChartDataset<'line'>[] = [];
+      for (let i = 0; i < count; i++) {
+        const color = PALETTE[i % PALETTE.length];
+        const bg = color.replace(', 1)', ', 0.2)');
+        datasetsFlujo.push({
+          label: `Sensor ${i + 1}`,
+          data: [],
+          borderColor: color,
+          backgroundColor: bg,
+          fill: false,
+          tension: 0.1,
+          pointRadius: 0,
+          spanGaps: true
+        });
+      }
+      this.chartFlujo = new Chart(
+        this.canvasFlujoAgua.nativeElement.getContext('2d')!,
+        {
+          type: 'line',
+          data: { labels: [], datasets: datasetsFlujo },
+          options: {
+            animation: { duration: 0 },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: { display: true, text: 'Flujo de Agua (L/min)' },
+              legend: { position: 'bottom' }
+            },
+            scales: {
+              x: { ticks: { autoSkip: true, maxTicksLimit: 8 } },
+              y: { beginAtZero: true }
+            }
+          }
+        }
+      );
+    }
+
+    // 3) Calidad de Agua
+    if (this.sensorConfig.calidadAgua > 0) {
+      const count = this.sensorConfig.calidadAgua;
+      const datasetsCalidad: ChartDataset<'line'>[] = [];
+      for (let i = 0; i < count; i++) {
+        const color = PALETTE[i % PALETTE.length];
+        const bg = color.replace(', 1)', ', 0.2)');
+        datasetsCalidad.push({
+          label: `Sensor ${i + 1}`,
+          data: [],
+          borderColor: color,
+          backgroundColor: bg,
+          fill: false,
+          tension: 0.1,
+          pointRadius: 0,
+          spanGaps: true
+        });
+      }
+      this.chartCalidad = new Chart(
+        this.canvasCalidadAgua.nativeElement.getContext('2d')!,
+        {
+          type: 'line',
+          data: { labels: [], datasets: datasetsCalidad },
+          options: {
+            animation: { duration: 0 },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: { display: true, text: 'Calidad del Agua' },
+              legend: { position: 'bottom' }
+            },
+            scales: {
+              x: { ticks: { autoSkip: true, maxTicksLimit: 8 } },
+              y: { beginAtZero: true }
+            }
+          }
+        }
+      );
+    }
+
+    // 4) Nivel de Agua
+    if (this.sensorConfig.nivelAgua > 0) {
+      const count = this.sensorConfig.nivelAgua;
+      const datasetsNivel: ChartDataset<'line'>[] = [];
+      for (let i = 0; i < count; i++) {
+        const color = PALETTE[i % PALETTE.length];
+        const bg = color.replace(', 1)', ', 0.2)');
+        datasetsNivel.push({
+          label: `Sensor ${i + 1}`,
+          data: [],
+          borderColor: color,
+          backgroundColor: bg,
+          fill: false,
+          tension: 0.1,
+          pointRadius: 0,
+          spanGaps: true
+        });
+      }
+      this.chartNivel = new Chart(
+        this.canvasNivelAgua.nativeElement.getContext('2d')!,
+        {
+          type: 'line',
+          data: { labels: [], datasets: datasetsNivel },
+          options: {
+            animation: { duration: 0 },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: { display: true, text: 'Nivel del Agua (%)' },
+              legend: { position: 'bottom' }
+            },
+            scales: {
+              x: { ticks: { autoSkip: true, maxTicksLimit: 8 } },
+              y: { beginAtZero: true }
+            }
+          }
+        }
+      );
+    }
+
+    // 5) Nivel de Oxígeno
+    if (this.sensorConfig.nivelOxigeno > 0) {
+      const count = this.sensorConfig.nivelOxigeno;
+      const datasetsOxigeno: ChartDataset<'line'>[] = [];
+      for (let i = 0; i < count; i++) {
+        const color = PALETTE[i % PALETTE.length];
+        const bg = color.replace(', 1)', ', 0.2)');
+        datasetsOxigeno.push({
+          label: `Sensor ${i + 1}`,
+          data: [],
+          borderColor: color,
+          backgroundColor: bg,
+          fill: false,
+          tension: 0.1,
+          pointRadius: 0,
+          spanGaps: true
+        });
+      }
+      this.chartOxigeno = new Chart(
+        this.canvasNivelOxigeno.nativeElement.getContext('2d')!,
+        {
+          type: 'line',
+          data: { labels: [], datasets: datasetsOxigeno },
+          options: {
+            animation: { duration: 0 },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: { display: true, text: 'Nivel de Oxígeno' },
+              legend: { position: 'bottom' }
+            },
+            scales: {
+              x: { ticks: { autoSkip: true, maxTicksLimit: 8 } },
+              y: { beginAtZero: true }
+            }
+          }
+        }
+      );
+    }
+
     this.cdr.detectChanges();
-  }
-
-  ngOnDestroy(): void {
-    console.log('Destroy');
-    const id = this.PeceraData.id;
-    this.aquariumDataService.desuscribirseDeTodosLosTopics(id);
-    this.mensajeSub.unsubscribe();
-
   }
 
   private procesarMensaje(topic: string, mensaje: string): void {
@@ -170,30 +374,13 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
     const categoria = parts[3];
     const tipo = parts[4];
     const id = parseInt(parts[5], 10) - 1;
-    const valor = tipo === 'actuador' ? (mensaje === 'true') : parseFloat(mensaje);
-    console.log(`📩 Mensaje recibido desde el topic: ${topic}`);
+    const valor = tipo === 'actuador'
+      ? (mensaje === 'true')
+      : parseFloat(mensaje);
 
-    if (tipo === 'sensor') {
-      if (this.valoresSensores[categoria]?.[id] !== undefined) {
-        this.valoresSensores[categoria][id] = valor as number;
-      }
-      switch (categoria) {
-        case 'temperatura':
-          if (this.chartTemps[id]) this.actualizarGrafico(this.chartTemps[id], valor as number);
-          break;
-        case 'flujoAgua':
-          if (this.chartFlujos[id]) this.actualizarGrafico(this.chartFlujos[id], valor as number);
-          break;
-        case 'calidadAgua':
-          if (this.chartCalidades[id]) this.actualizarGrafico(this.chartCalidades[id], valor as number);
-          break;
-        case 'nivelAgua':
-          if (this.chartNiveles[id]) this.actualizarGrafico(this.chartNiveles[id], valor as number);
-          break;
-        case 'nivelOxigeno':
-          if (this.chartOxigenos[id]) this.actualizarGrafico(this.chartOxigenos[id], valor as number);
-          break;
-      }
+    if (tipo === 'sensor' && this.valoresSensores[categoria]?.[id] !== undefined) {
+      this.valoresSensores[categoria][id] = valor as number;
+      this.actualizarGraficoPorTipo(categoria);
     } else if (tipo === 'actuador') {
       if (this.valoresActuadores[categoria]?.[id] !== undefined) {
         this.valoresActuadores[categoria][id] = valor as boolean;
@@ -201,6 +388,63 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private actualizarGraficoPorTipo(categoria: string): void {
+    const now = new Date();
+    // Formato HH:MM:SS:ms para evitar repeticiones
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const ms = String(now.getMilliseconds()).padStart(3, '0');
+    const tiempo = `${h}:${m}:${s}:${ms}`;
+
+    let chartObj: Chart | undefined;
+    let valores: number[];
+
+    switch (categoria) {
+      case 'temperatura':
+        chartObj = this.chartTemp;
+        valores = this.valoresSensores[categoria];
+        break;
+      case 'flujoAgua':
+        chartObj = this.chartFlujo;
+        valores = this.valoresSensores[categoria];
+        break;
+      case 'calidadAgua':
+        chartObj = this.chartCalidad;
+        valores = this.valoresSensores[categoria];
+        break;
+      case 'nivelAgua':
+        chartObj = this.chartNivel;
+        valores = this.valoresSensores[categoria];
+        break;
+      case 'nivelOxigeno':
+        chartObj = this.chartOxigeno;
+        valores = this.valoresSensores[categoria];
+        break;
+      default:
+        return;
+    }
+
+    if (!chartObj) return;
+
+    const data = chartObj.data;
+    data.labels!.push(tiempo);
+
+    data.datasets!.forEach((ds: any, idx: number) => {
+      // Insertar siempre el valor actual del sensor idx
+      const ultimo = valores[idx];
+      ds.data.push(ultimo !== undefined ? ultimo : null);
+    });
+
+    if (data.labels!.length > 10) {
+      data.labels!.shift();
+      data.datasets!.forEach((ds: any) => {
+        ds.data.shift();
+      });
+    }
+
+    chartObj.update('none');
+  }
 
   enviarMensajeActuador(categoria: string, id: number, estado: string) {
     const nuevoEstado = estado === 'true' ? 'false' : 'true';
@@ -208,24 +452,9 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
     this.aquariumDataService.enviarMensajeActuador(this.PeceraData.id, categoria, id, nuevoEstado);
   }
 
-  private crearGrafico(canvas: HTMLCanvasElement, label: string, color: string): Chart {
-    return new Chart(canvas.getContext('2d')!, {
-      type: 'line',
-      data: { labels: [], datasets: [{ label, data: [], backgroundColor: color, borderColor: color, borderWidth: 2, fill: false, tension: 0.1 }] },
-      options: { animation: { duration: 0 }, scales: { x: { ticks: { autoSkip: true, maxTicksLimit: 10 } }, y: { beginAtZero: true } }, responsive: true }
-    });
+  ngOnDestroy(): void {
+    const id = this.PeceraData.id;
+    this.aquariumDataService.desuscribirseDeTodosLosTopics(id);
+    this.mensajeSub.unsubscribe();
   }
-
-  private actualizarGrafico(grafico: Chart, valor: number) {
-    const tiempo = new Date().toLocaleTimeString();
-    const data = grafico.data;
-    data.labels!.push(tiempo);
-    data.datasets[0].data.push(valor);
-    if (data.labels!.length > 10) {
-      data.labels!.shift();
-      data.datasets[0].data.shift();
-    }
-    grafico.update('none');
-  }
-
 }

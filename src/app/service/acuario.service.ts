@@ -12,11 +12,16 @@ export class AcuarioService {
 
 
   getPeceras(): Observable<any> {
-    return this.http.get("/assets/peceras.json");
+    return this.http.get(`${this.url}`);
   }
 
   getPeceraById(id: string): Observable<any> {
     return this.http.get(`/json/pecera-${id}.json`);
+  }
+
+  postPecera(nombre: string, descripcion: string, tamano: string): Observable<any> {
+    const body = { nombre, descripcion, tamano };
+    return this.http.post(this.url, body);
   }
 
 }

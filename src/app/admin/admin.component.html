@@ -1,6 +1,11 @@
 <div class="aquarium-admin">
-    <h1 class="admin-title">Panel de Peceras</h1>
-    <div class="aquarium-grid">
+    <div class="tittle-header">
+        <h1 class="admin-title">Panel de Peceras </h1>
+        <button class="submit-button" (click)="onAddAquarium()">Añadir Pecera</button>
+    </div>
+
+
+    <div class=" aquarium-grid">
         <button class="aquarium-card" *ngFor="let item of items" (click)="onCardClick(item)">
             <div class="aquarium-header">
                 <div class="aquarium-icon">🐠</div>
@@ -9,8 +14,8 @@
             <p class="aquarium-description">{{ item.descripcion }}</p>
             <p class="aquarium-description">
                 {{
-                item.tamanio === 's' ? 'Pequeño' :
-                item.tamanio === 'm' ? 'Mediano' :
+                item.tamano === 's' ? 'Pequeño' :
+                item.tamano === 'm' ? 'Mediano' :
                 'Grande'
                 }}
             </p>

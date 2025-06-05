@@ -28,12 +28,16 @@ export class AdminComponent implements OnInit {
         id: pecera.id,
         nombre: pecera.nombre,
         descripcion: pecera.descripcion,
-        tamanio: pecera.tamanio,
+        tamano: pecera.tamano,
       }));
     });
   }
 
   onCardClick(item: any) {
     this.router.navigate(['/aquarium'], { state: { item } });
+  }
+
+  onAddAquarium() {
+    this.router.navigate(['/add-aquarium']);
   }
 }
