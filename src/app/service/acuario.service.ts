@@ -15,8 +15,8 @@ export class AcuarioService {
     return this.http.get(`${this.url}`);
   }
 
-  getPeceraById(id: string): Observable<any> {
-    return this.http.get(`/json/pecera-${id}.json`);
+  getPeceraById(id: number): Observable<any> {
+    return this.http.get(`${this.url}${id}/`);
   }
 
   postPecera(nombre: string, descripcion: string, tamano: string): Observable<any> {

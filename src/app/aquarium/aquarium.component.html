@@ -1,20 +1,27 @@
 <!-- aquarium.component.html -->
 <div class="cuerpo">
     <header>
-        <h1>{{PeceraData.nombre}}</h1>
+
+        <h1 class="admin-title">{{PeceraData.nombre}}</h1>
         <p>{{PeceraData.descripcion}}</p>
-        <p>
-            <strong>Tamaño:</strong>
-            {{ PeceraData.tamano === 's' ? 'Chica'
-            : PeceraData.tamano === 'm' ? 'Mediana'
-            : 'Grande' }}
-        </p>
+        <div style="display: flex; justify-content: center; gap: 10vw; margin-bottom: 10px;  ">
+
+            <p>
+                <strong>Tamaño:</strong>
+                {{ PeceraData.tamano === 's' ? 'Chica'
+                : PeceraData.tamano === 'm' ? 'Mediana'
+                : 'Grande' }}
+
+            </p>
+            <button (click)="infoSensors(PeceraData.id)" class="submit-button">Ver registro de sensores</button>
+        </div>
     </header>
 
     <div class="contenido">
         <!-- Datos de la pecera -->
         <div class="datos-container">
             <h2>Datos de los sensores en tiempo real</h2>
+
             <div class="datos">
                 <div
                     *ngFor="let tipo of ['temperatura', 'flujoAgua', 'calidadAgua', 'nivelAgua', 'nivelOxigeno','movimiento']">

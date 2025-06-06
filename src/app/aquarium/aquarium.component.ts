@@ -457,4 +457,10 @@ export class AquariumComponent implements OnInit, AfterViewInit, OnDestroy {
     this.aquariumDataService.desuscribirseDeTodosLosTopics(id);
     this.mensajeSub.unsubscribe();
   }
+
+  infoSensors(id: number): void {
+    this.router.navigate(['/sensor-info'], {
+      state: { item: id }
+    });
+  }
 }

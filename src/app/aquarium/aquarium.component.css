@@ -131,3 +131,19 @@ header .descripcion {
 h2 {
     margin: 5px;
 }
+
+
+.submit-button {
+    background-color: #0277bd;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #01579b;
+}

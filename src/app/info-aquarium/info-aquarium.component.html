@@ -1,0 +1,35 @@
+<div class="cuerpo">
+    <header>
+        <h1>Registros de la pecera</h1>
+    </header>
+    <div class="contenido">
+        <div class="tablas" *ngFor="let tipo of tiposSensores">
+            <div>
+                <h2>Registros de {{ tipo.replace('registros_', '') }} | Registros:
+                    {{[peceraData[tipo].length]}}</h2>
+                <div class="table-container">
+                    <table class="table-responsive">
+                        <thead>
+                            <tr>
+                                <!-- <th>ID</th> -->
+                                <th>Sensor</th>
+                                <th>Fecha</th>
+                                <th>Dato</th>
+                                <!-- <th>Pecera</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let registro of peceraData[tipo]">
+                                <!-- <td>{{ registro.id }}</td> -->
+                                <td>{{ registro.sensor }}</td>
+                                <td>{{ registro.fecha | date:'short' }}</td>
+                                <td>{{ registro.data }}</td>
+                                <!-- <td>{{ registro.pecera }}</td> -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

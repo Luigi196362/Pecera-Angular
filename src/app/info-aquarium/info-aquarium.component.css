@@ -1,0 +1,83 @@
+.cuerpo {
+    background: linear-gradient(to bottom, #74c3ff, #356eff);
+    height: 100%;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #fff;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.tablas {
+    color: #333;
+    background-color: #f4faff;
+    border-radius: 16px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.25);
+    padding: 20px;
+    width: 40vw;
+    max-width: 900px;
+    overflow: hidden;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+
+}
+
+.table-container {
+    max-height: 50vh;
+    overflow-y: auto;
+
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-size: 0.95rem;
+}
+
+thead {
+    background-color: #007bff;
+    color: #fff;
+}
+
+th,
+td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #e9f4ff;
+}
+
+tbody tr:hover {
+    background-color: #d0eaff;
+}
+
+.contenido {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 15px;
+}
+
+header {
+    background-color: white;
+    color: #003366;
+    padding: 0px;
+    width: 100%;
+    max-width: 95%;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
